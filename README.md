@@ -7,8 +7,8 @@ This repository is a non-perfect reimplementation in FNA that also uses the Diag
 
 ## Diagonal Shadows in action
 Shadows are cast beneath the solid.
-[Below the wall](./images/preview.png)
+![wall](./images/preview.png)
 
 Shadows are cast above the solid.
-[Above the wall](./images/preview2.png)
+![Above the wall](./images/preview2.png)
 
