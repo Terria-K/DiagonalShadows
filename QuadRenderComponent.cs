@@ -50,11 +50,6 @@ public partial class QuadRenderComponent : IDisposable
         isStarted = true;
     }
 
-    public void End() 
-    {
-        FlushVertex();
-    }
-
     private void CheckIfStarted() 
     {
         if (!isStarted) 
@@ -73,11 +68,11 @@ public partial class QuadRenderComponent : IDisposable
         if (this.vertexCount + vertexCount > vertexBuffer.Length || 
             this.indexCount + indexCount > indexBuffer.Length)
         {
-            FlushVertex();
+            Flush();
         }
     }
 
-    public void FlushVertex() 
+    public void Flush() 
     {
         if (shapeCount == 0) 
         {
@@ -93,7 +88,7 @@ public partial class QuadRenderComponent : IDisposable
         }
     }
 
-    public void Reset() 
+    public void End() 
     {
         shapeCount = 0;
         vertexCount = 0;
@@ -101,7 +96,7 @@ public partial class QuadRenderComponent : IDisposable
         isStarted = false;
     }
 
-    public void DrawVertexQuad(int x1, int y1, int x2, int y2, Color color) 
+    public void DrawQuad(int x1, int y1, int x2, int y2, Color color) 
     {
         FlushIfNeeded(4, 6);
 

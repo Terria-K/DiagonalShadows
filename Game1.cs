@@ -15,6 +15,7 @@ public class Game1 : Microsoft.Xna.Framework.Game
     private Texture2D Background, SubBackground;
     private Effect effect;
     private RenderTarget2D rt;
+    private BlendState blendRenderer;
     public static RenderTarget2D blurRt, fBlurRt;
     public static Texture2D PixelTexture;
 
@@ -30,6 +31,10 @@ public class Game1 : Microsoft.Xna.Framework.Game
 
     protected override void Initialize()
     {
+        blendRenderer = new BlendState();
+        blendRenderer.ColorSourceBlend = Blend.Zero;
+        blendRenderer.ColorDestinationBlend = Blend.SourceColor;
+
         rt = new RenderTarget2D(GraphicsDevice, 320, 180);
         blurRt = new RenderTarget2D(GraphicsDevice, 320, 180);
         fBlurRt = new RenderTarget2D(GraphicsDevice, 320, 180);
@@ -60,38 +65,24 @@ public class Game1 : Microsoft.Xna.Framework.Game
         PixelTexture.SetData(new Color[] { Color.White });
     }
 
-    protected override void UnloadContent()
-    {
-        // TODO: Unload any non ContentManager content here
-    }
-
     protected override void Update(GameTime gameTime)
     {
-        // Allows the game to exit
-        if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
-            this.Exit();
-
         renderer.Update();
         light.Position = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
-
-        base.Update(gameTime);
     }
 
-    private void PreDraw() 
+    protected override void Draw(GameTime gameTime)
     {
         GraphicsDevice.SetRenderTarget(rt);
         GraphicsDevice.Clear(Color.Transparent);
-        var rendererBlending = new BlendState();
-        rendererBlending.ColorSourceBlend = Blend.Zero;
-        rendererBlending.ColorDestinationBlend = Blend.SourceColor;
 
         spriteBatch.Begin();
         spriteBatch.Draw(Background, Vector2.Zero, Color.White);
         spriteBatch.End();
 
-        spriteBatch.Begin(SpriteSortMode.Immediate, rendererBlending,
+        spriteBatch.Begin(SpriteSortMode.Immediate, blendRenderer,
         SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullNone, effect);
-        spriteBatch.Draw(renderer.lightTarget, Vector2.Zero, Color.White);
+        spriteBatch.Draw(renderer.LightTarget, Vector2.Zero, Color.White);
         spriteBatch.End();
 
         // Try moving this into the top of the lightTarget to see why I abandoned this.. 
@@ -106,16 +97,11 @@ public class Game1 : Microsoft.Xna.Framework.Game
 
 
         renderer.Render(spriteBatch);
-    }
 
-    protected override void Draw(GameTime gameTime)
-    {
-        PreDraw();
         GraphicsDevice.SetRenderTarget(null);
         GraphicsDevice.Clear(Color.White);
         spriteBatch.Begin();
         spriteBatch.Draw(rt, Vector2.Zero, null, Color.White, 0f, Vector2.Zero, 3, SpriteEffects.None, 1f);
         spriteBatch.End();
-        base.Draw(gameTime);
     }
 }

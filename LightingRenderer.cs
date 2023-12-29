@@ -14,9 +14,12 @@ public class LightingRenderer
     private Effect lightEffect;
     private Effect shadowEffect;
 
-    private QuadRenderComponent component;
+    private QuadRenderComponent quad;
     private RenderTarget2D surface;
-    public RenderTarget2D lightTarget;
+    public RenderTarget2D LightTarget;
+
+    private BlendState blendLight;
+    private BlendState blendShadow;
 
     public LightingRenderer(GraphicsDevice graphicsDevice, RenderTarget2D surface) 
     {
@@ -25,16 +28,28 @@ public class LightingRenderer
         Lights.Add(new GlobalLight());
         this.surface = surface;
 
-        component = new QuadRenderComponent(graphicsDevice);
+        quad = new QuadRenderComponent(graphicsDevice);
 
-        lightTarget = new RenderTarget2D(graphicsDevice, 320, 180);
+        LightTarget = new RenderTarget2D(graphicsDevice, 320, 180);
+
+        blendLight = new BlendState();
+        blendLight.ColorSourceBlend = Blend.InverseDestinationAlpha;
+        blendLight.ColorDestinationBlend = Blend.One;
+        blendLight.AlphaSourceBlend = Blend.Zero;
+        blendLight.AlphaDestinationBlend = Blend.Zero;
+
+        blendShadow = new BlendState();
+        blendShadow.ColorSourceBlend = Blend.Zero;
+        blendShadow.ColorDestinationBlend = Blend.One;
+        blendShadow.AlphaSourceBlend = Blend.One;
+        blendShadow.AlphaDestinationBlend = Blend.One;
     }
 
     public void LoadContent(ContentManager content) 
     {
         lightEffect = content.Load<Effect>("light.fxb");
         shadowEffect = content.Load<Effect>("shadow.fxb");
-        component.SetEffect(shadowEffect);
+        quad.SetEffect(shadowEffect);
 
         Vector2 center = new Vector2(320 * 0.5f, 180 * 0.5f);
         var view = Matrix.CreateLookAt(new Vector3(center, 0), new Vector3(center, 1), new Vector3(0, -1, 0));
@@ -63,7 +78,7 @@ public class LightingRenderer
 
     public void Render(SpriteBatch spriteBatch) 
     {
-        component.Begin();
+        quad.Begin();
         for (int j = 0; j < Walls.Count; j++) 
         {
             var wall = Walls[j];
@@ -71,23 +86,12 @@ public class LightingRenderer
             var offsetY = wall.Y;
             var offsetW = wall.Width;
             var offsetH = wall.Height;
-            component.DrawVertexQuad(offsetX, offsetY, offsetX + offsetW, offsetY + offsetH, Color.White);
-            component.DrawVertexQuad(offsetX + offsetW, offsetY, offsetX, offsetY + offsetH, Color.White);
+            quad.DrawQuad(offsetX, offsetY, offsetX + offsetW, offsetY + offsetH, Color.White);
+            quad.DrawQuad(offsetX + offsetW, offsetY, offsetX, offsetY + offsetH, Color.White);
         }
 
-        var lightBlend = new BlendState();
-        lightBlend.ColorSourceBlend = Blend.InverseDestinationAlpha;
-        lightBlend.ColorDestinationBlend = Blend.One;
-        lightBlend.AlphaSourceBlend = Blend.Zero;
-        lightBlend.AlphaDestinationBlend = Blend.Zero;
 
-        var shadowBlend = new BlendState();
-        shadowBlend.ColorSourceBlend = Blend.Zero;
-        shadowBlend.ColorDestinationBlend = Blend.One;
-        shadowBlend.AlphaSourceBlend = Blend.One;
-        shadowBlend.AlphaDestinationBlend = Blend.One;
-
-        graphicsDevice.SetRenderTarget(lightTarget);
+        graphicsDevice.SetRenderTarget(LightTarget);
         graphicsDevice.Clear(Color.Transparent);
 
         spriteBatch.Begin();
@@ -99,7 +103,7 @@ public class LightingRenderer
         {
             if (i == 0) 
             {
-                spriteBatch.Begin(SpriteSortMode.Immediate, lightBlend,
+                spriteBatch.Begin(SpriteSortMode.Immediate, blendLight,
                 SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullNone);
 
                 lightEffect.CurrentTechnique.Passes[0].Apply();
@@ -115,11 +119,11 @@ public class LightingRenderer
             lightEffect.Parameters["fov"].SetValue(light.Fov);
             lightEffect.Parameters["ps_str"].SetValue(light.Strength);
             shadowEffect.Parameters["vs_pos"].SetValue(light.Position);
-            graphicsDevice.BlendState = shadowBlend;
+            graphicsDevice.BlendState = blendShadow;
 
-            component.End();
+            quad.Flush();
 
-            spriteBatch.Begin(SpriteSortMode.Immediate, lightBlend,
+            spriteBatch.Begin(SpriteSortMode.Immediate, blendLight,
             SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullNone);
 
             lightEffect.CurrentTechnique.Passes[0].Apply();
@@ -128,7 +132,7 @@ public class LightingRenderer
             spriteBatch.Draw(Game1.PixelTexture, Vector2.Zero, new Rectangle(0, 0, 320, 180), light.Color);
             spriteBatch.End();
         }
-        component.Reset();
+        quad.End();
         graphicsDevice.BlendState = BlendState.AlphaBlend;
     }
 }
