@@ -1,4 +1,4 @@
-using System;
+using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -12,11 +12,10 @@ public class Game1 : Microsoft.Xna.Framework.Game
     private SpriteBatch spriteBatch;
     private LightingRenderer renderer;
     private Light light;
-    private Texture2D Background, SubBackground;
-    private Effect effect;
+    private Texture2D Background;
+    private Texture2D SubBackground;
     private RenderTarget2D rt;
-    private BlendState blendRenderer;
-    public static RenderTarget2D blurRt, fBlurRt;
+    private bool pressed;
     public static Texture2D PixelTexture;
 
     public Game1()
@@ -31,24 +30,17 @@ public class Game1 : Microsoft.Xna.Framework.Game
 
     protected override void Initialize()
     {
-        blendRenderer = new BlendState();
-        blendRenderer.ColorSourceBlend = Blend.Zero;
-        blendRenderer.ColorDestinationBlend = Blend.SourceColor;
-
         rt = new RenderTarget2D(GraphicsDevice, 320, 180);
-        blurRt = new RenderTarget2D(GraphicsDevice, 320, 180);
-        fBlurRt = new RenderTarget2D(GraphicsDevice, 320, 180);
-        renderer = new LightingRenderer(GraphicsDevice, rt);
+        renderer = new LightingRenderer(GraphicsDevice, rt, new Point(320, 180));
+        renderer.EnvironmentColor = Color.White * 0.2f;
         base.Initialize();
-        // renderer.Lights.Add(new Light(2000, 2000));
+
         renderer.Lights.Add(light = new Light(20, 20));
         light.Color = Color.Blue;
-        // renderer.Lights.Add(new Light(40, 40));
+
         renderer.Walls.Add(new Wall(100, 100, 10, 30) { Color = Color.LightGreen });
         renderer.Walls.Add(new Wall(220, 80, 20, 20) { Color = Color.Blue });
-        renderer.Walls.Add(new Wall(220, 20, 30, 30) { Color = Color.Blue });
-        renderer.Walls.Add(new Wall(250, 20, 30, 30) { Color = Color.Blue });
-        renderer.Walls.Add(new Wall(280, 20, 30, 30) { Color = Color.Blue });
+        renderer.Walls.Add(new Wall(220, 20, 90, 30) { Color = Color.Blue });
     }
 
     protected override void LoadContent()
@@ -59,7 +51,6 @@ public class Game1 : Microsoft.Xna.Framework.Game
 
         Background = Content.Load<Texture2D>("background.png");
         SubBackground = Content.Load<Texture2D>("subbackground.png");
-        effect = Content.Load<Effect>("environment.fxb");
 
         PixelTexture = new Texture2D(GraphicsDevice, 1, 1);
         PixelTexture.SetData(new Color[] { Color.White });
@@ -67,31 +58,41 @@ public class Game1 : Microsoft.Xna.Framework.Game
 
     protected override void Update(GameTime gameTime)
     {
-        renderer.Update();
         light.Position = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
+
+        if (Mouse.GetState().LeftButton == ButtonState.Pressed) 
+        {
+            if (pressed) 
+            {
+                return;
+            }
+            pressed = true;
+            renderer.Lights.Add(new Light(Mouse.GetState().X, Mouse.GetState().Y));
+            return;
+        }
+        
+        pressed = false;
     }
 
     protected override void Draw(GameTime gameTime)
     {
+        Vector2 center = new Vector2(320 * 0.5f, 180 * 0.5f);
+        var view = Matrix.CreateLookAt(new Vector3(center, 0), new Vector3(center, 1), new Vector3(0, -1, 0));
+        var projection = Matrix.CreateOrthographic(center.X * 2, center.Y * 2, -0.5f, 1);
+        renderer.BeforeRender(spriteBatch, view, projection);
+
         GraphicsDevice.SetRenderTarget(rt);
         GraphicsDevice.Clear(Color.Transparent);
 
         spriteBatch.Begin();
-        spriteBatch.Draw(Background, Vector2.Zero, Color.White);
+        spriteBatch.Draw(Background, Vector2.Zero, Color.White * 0.95f);
         spriteBatch.End();
 
-        spriteBatch.Begin(SpriteSortMode.Immediate, blendRenderer,
-        SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullNone, effect);
-        spriteBatch.Draw(renderer.LightTarget, Vector2.Zero, Color.White);
-        spriteBatch.End();
-
-        // Try moving this into the top of the lightTarget to see why I abandoned this.. 
-        // meow! :>
         spriteBatch.Begin();
         foreach (var wall in renderer.Walls) 
         {
             spriteBatch.Draw(Game1.PixelTexture, new Vector2(wall.X, wall.Y), 
-            new Rectangle(0, 0, wall.Width, wall.Height), Color.Red);
+            new Rectangle(0, 0, wall.Width, wall.Height), wall.Color);
         }
         spriteBatch.End();
 

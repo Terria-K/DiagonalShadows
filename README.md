@@ -5,10 +5,10 @@ from this video: [Fastest 2D Dynamic Lighting System in GMS2](https://www.youtub
 
 This repository is a non-perfect reimplementation in FNA that also uses the Diagonal Shadows.
 
+
 ## Diagonal Shadows in action
-Shadows are cast beneath the solid.
+Shadows are cast with Edge Lighting
 ![wall](./images/preview.png)
 
-Shadows are cast above the solid.
+Shadows are cast without Edge Lighting
 ![Above the wall](./images/preview2.png)
-

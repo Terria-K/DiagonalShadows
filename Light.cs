@@ -2,7 +2,6 @@ using Microsoft.Xna.Framework;
 
 namespace VertexTest;
 
-
 public class Light 
 {
     public Vector2 Position;

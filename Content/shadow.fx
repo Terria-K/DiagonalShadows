@@ -18,7 +18,7 @@ Vertex VS(float4 inPosition : POSITION)
     float scalarDist = length(dis);
     if (inPosition.z > 1.) {
         pos += dis/scalarDist * len;
-        vert.Distance.r= inPosition.z - 2.;
+        vert.Distance.r = inPosition.z - 2.;
         vert.Distance.g = 1.;
     } else {
         vert.Distance.g = scalarDist/len;
@@ -26,6 +26,7 @@ Vertex VS(float4 inPosition : POSITION)
     }
     float4 viewPos = mul(float4(pos.x, pos.y, 0., 1), view);
     float4 finalPos = mul(viewPos, projection); 
+    finalPos.z = 0;
     vert.Pos = finalPos;
     return vert;
 }
