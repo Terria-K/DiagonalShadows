@@ -32,6 +32,7 @@ public class Game1 : Microsoft.Xna.Framework.Game
     {
         rt = new RenderTarget2D(GraphicsDevice, 320, 180);
         renderer = new LightingRenderer(GraphicsDevice, rt, new Point(320, 180));
+        renderer.EdgeLight = true;
         renderer.EnvironmentColor = Color.White * 0.2f;
         base.Initialize();
 
