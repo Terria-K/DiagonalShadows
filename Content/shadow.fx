@@ -33,7 +33,7 @@ Vertex VS(float4 inPosition : POSITION)
 
 float4 PS(in Vertex vert) : COLOR0
 {
-    float str = (1. - abs(vert.Distance.r - 0.5) * 2 / vert.Distance.g) * 3.;
+    float str = (1. - abs(vert.Distance.r - 0.5) * 2 / vert.Distance.g) * 5.;
     return float4(str, str, str, str);
 }
 

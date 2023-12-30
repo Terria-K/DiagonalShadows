@@ -37,11 +37,16 @@ public class Game1 : Microsoft.Xna.Framework.Game
         base.Initialize();
 
         renderer.Lights.Add(light = new Light(20, 20));
-        light.Color = Color.Blue;
+        light.Color = Color.White;
 
         renderer.Walls.Add(new Wall(100, 100, 10, 30) { Color = Color.LightGreen });
-        renderer.Walls.Add(new Wall(220, 80, 20, 20) { Color = Color.Blue });
-        renderer.Walls.Add(new Wall(220, 20, 90, 30) { Color = Color.Blue });
+        // renderer.Walls.Add(new Wall(220, 80, 20, 20) { Color = Color.Blue });
+        // renderer.Walls.Add(new Wall(220, 20, 90, 30) { Color = Color.Blue });
+        renderer.Walls.Add(new Wall(220, 20, 8, 8) { Color = Color.Blue });
+        renderer.Walls.Add(new Wall(228, 20, 8, 8) { Color = Color.Blue });
+        renderer.Walls.Add(new Wall(228 + 8, 20, 8, 8) { Color = Color.Blue });
+        renderer.Walls.Add(new Wall(228 + 16, 20, 8, 8) { Color = Color.Blue });
+        renderer.Walls.Add(new Wall(228 + 24, 20, 8, 8) { Color = Color.Blue });
     }
 
     protected override void LoadContent()

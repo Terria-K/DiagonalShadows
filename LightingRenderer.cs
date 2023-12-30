@@ -143,6 +143,7 @@ public class LightingRenderer
             var light = Lights[i];
             lightEffect.Parameters["ps_pos"].SetValue(light.Position);
             lightEffect.Parameters["size"].SetValue(light.Size);
+            lightEffect.Parameters["intensity"].SetValue(light.Intensity);
             lightEffect.Parameters["dir"].SetValue(light.Direction);
             lightEffect.Parameters["fov"].SetValue(light.Fov);
             lightEffect.Parameters["ps_str"].SetValue(light.Strength);
@@ -164,7 +165,7 @@ public class LightingRenderer
 
             lightEffect.CurrentTechnique.Passes[0].Apply();
 
-            spriteBatch.Draw(Game1.PixelTexture, Vector2.Zero, new Rectangle(0, 0, 320, 180), light.Color);
+            spriteBatch.Draw(Game1.PixelTexture, Vector2.Zero, new Rectangle(0, 0, Size.X, Size.Y), light.Color);
             spriteBatch.End();
         }
 

@@ -5,11 +5,12 @@ namespace VertexTest;
 public class Light 
 {
     public Vector2 Position;
-    public float Size = 64;
+    public float Size = 0.4f;
+    public float Intensity = 32f;
     public Color Color = Color.White;
     public float Direction;
     public float Fov = 360;
-    public float Strength = -2;
+    public float Strength = -1;
 
     public Light(int x, int y) 
     {

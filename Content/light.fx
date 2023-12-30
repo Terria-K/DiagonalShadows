@@ -29,6 +29,7 @@ float fov;
 float2 ps_pos;
 float ps_str;
 float size;
+float intensity;
 
 float mod(float x, float y)
 {
@@ -38,7 +39,7 @@ float mod(float x, float y)
 float4 PS(in Vertex vert) : COLOR0
 {
     float2 dis = vert.Pos.xy - ps_pos;
-    float str = 1./(sqrt(dis.x * dis.x + dis.y * dis.y + size * size) - size + 1. - ps_str);
+    float str = size/(sqrt(dis.x * dis.x + dis.y * dis.y + intensity * intensity) - intensity + size - ps_str);
 
     float rdir = radians(dir);
     float hfov = radians(fov) * 0.5f;
